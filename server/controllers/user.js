@@ -13,8 +13,14 @@ const getUserByIdHandler= async(req,res)=>{
 }
 
 const postUserHandler= async(req,res)=>{
-    let user=await   User.create(req.body);
-    res.status(200).json(user)
+    try {
+        let user=await   User.create(req.body);
+    res.status(200).json({user,success:true}) 
+    } catch (error) {
+        res.status(400).json({success:false}) 
+ 
+    }
+   
 }
 
 const deleteUserHandler= async(req,res)=>{
@@ -29,8 +35,20 @@ const patchUserHandler= async(req,res)=>{
 }
 
 const loginHandler= async(req,res)=>{
-    let user=await   User.find({email:req.params.email,password:req.params.password});
-    res.status(200).json(user)
+    try {
+        let user=await   User.find({email:req.body.email,password:req.body.password});
+        console.log("user",user)
+        if(user.length){
+            res.status(200).json({user,success:true})
+
+        }else{
+            res.status(200).json({success:false,message:"User not found"})
+
+        }
+    } catch (error) {
+        res.status(400).json({success:false})
+
+    }
 }
 
 
