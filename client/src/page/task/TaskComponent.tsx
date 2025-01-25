@@ -1,5 +1,8 @@
 import { Droppable, Draggable } from 'react-beautiful-dnd';
-export function TaskComponent({ pending, done,completed }:any) {
+import { MdDelete } from "react-icons/md";
+
+export function TaskComponent({ pending, done,completed,updateTaskStatus }:any) {
+    console.log("pending",pending)
    const getListStyle = (isDraggingOver:any) => ({
       background: isDraggingOver ? "lightblue" : "white",
       width: '21%',
@@ -28,8 +31,8 @@ export function TaskComponent({ pending, done,completed }:any) {
                >
                      <h6 className='text-center bg-gray-200 font-bold text-xl' style={{ paddingLeft: '2%' }}>Pending</h6>
                      {pending.map((data:any, index:any) => (
-                        <Draggable key={data} 
-                         draggableId={`${data}${index}`} index={index}>
+                        <Draggable key={data?.title} 
+                         draggableId={`${data?.title}${index}`} index={index}>
                            {(provided, snapshot) => (
                               <div
                                  key={index}
@@ -42,8 +45,14 @@ export function TaskComponent({ pending, done,completed }:any) {
                                  )}
                                  className='border-2 rounded-s-sm mt-10'
                               >
-                                <p>Title:{ data}</p> 
-                                <p>{"Description: -------------------------------fdgh"}</p> 
+                                <p>Title:{ data?.title}</p> 
+                                <p>{ data?.description}</p> 
+                                <div className='flex justify-end'>
+                                <MdDelete onClick={()=>{
+                                    updateTaskStatus(data?._id,"Delete")
+                                }} />
+                                </div>
+
 
                               </div>
                            )}
@@ -68,9 +77,9 @@ export function TaskComponent({ pending, done,completed }:any) {
               >
                    <h6 className='text-center bg-gray-200 font-bold text-xl' style={{ paddingLeft: '2%' }}> Completed</h6>
                       {completed.map((data:any, index:any) => (
-                         <Draggable key={data} draggableId={`${data}${index}`} index={index}>
+                         <Draggable key={data?.title} draggableId={`${data?.title}${index}`} index={index}>
                             {(provided, snapshot) => (
-                               <p
+                               <div
                                   key={index}
                                   ref={provided.innerRef}
                                   {...provided.draggableProps}
@@ -82,9 +91,14 @@ export function TaskComponent({ pending, done,completed }:any) {
                                   className='border-2 rounded-s-sm mt-10'
 
                                >
-                                <p>Title:{ data}</p> 
-                                <p>{"Description: -------------------------------fdgh"}</p> 
-                               </p>
+                                <p>Title:{ data?.title}</p> 
+                                <p>{ data?.description}</p> 
+                                <div className='flex justify-end'>
+                                <MdDelete onClick={()=>{
+                                    updateTaskStatus(data?._id,"Delete")
+                                }} />
+                                </div>
+                               </div>
                             )}
                          </Draggable>
                       ))}
@@ -106,9 +120,9 @@ export function TaskComponent({ pending, done,completed }:any) {
               >
                    <h6  className='text-center bg-gray-200 font-bold text-xl' style={{ paddingLeft: '2%'  }}> Done</h6>
                       {done.map((data:any, index:any) => (
-                         <Draggable key={data} draggableId={`${data}${index}`} index={index}>
+                         <Draggable key={data?.title} draggableId={`${data?.title}${index}`} index={index}>
                             {(provided, snapshot) => (
-                               <p
+                               <div
                                   key={index}
                                   ref={provided.innerRef}
                                   {...provided.draggableProps}
@@ -120,9 +134,14 @@ export function TaskComponent({ pending, done,completed }:any) {
                                   className='border-2 rounded-s-sm mt-5 bg-amber-950'
 
                                >
-                                <p>Title:{ data}</p> 
-                                <p>{"Description: -------------------------------fdgh"}</p> 
-                               </p>
+                               <p>Title:{ data?.title}</p> 
+                               <p>{ data?.description}</p> 
+                               <div className='flex justify-end'>
+                                <MdDelete onClick={()=>{
+                                    updateTaskStatus(data?._id,"Delete")
+                                }} />
+                                </div>
+                               </div>
                             )}
                          </Draggable>
                       ))}

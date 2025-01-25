@@ -11,7 +11,7 @@ const feedSchema= new mongoose.Schema({
     description:{
     type:String,
     },
-    imageKey:{
+    url:{
         type:String,
         },
 

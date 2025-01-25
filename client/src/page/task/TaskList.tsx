@@ -1,18 +1,74 @@
-import { useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { TaskComponent } from "./TaskComponent";
 import { DragDropContext } from 'react-beautiful-dnd';
 import Modal from "../../component/Model";
+import axios from "axios";
+import { TASK_URL } from "../../config/URL";
+import { ToastContainer, toast } from 'react-toastify';
+import { authContext } from "../../App";
+
 
 
 export default function TaskList() {
 
+const auth:any= useContext(authContext)
+
   const [title, settitle] = useState<String|undefined>(undefined)
   const [description, setdescription] = useState<String|undefined>(undefined)
-
-  const [list1, setList1] = useState(['Captain America', 'Iron Man', 'Hulk', 'Black Widow', 'Loki', 'Black Panther', 'Deadpool', 'Doctor Strange', 'Ant Man', 'Captain Marvel'])
-  const [list2, setList2] = useState(['Flash', 'Green Lantern', 'AquaMan', 'Robin', 'Cyborg', 'StarFire', 'HawkGirl', 'Shazam'])
-  const [list3, setList3] = useState(['BatMan', 'SuperMan', 'Wonder Woman', 'SpiderMan', 'Thor',])
+  //pending
+  const [list1, setList1] = useState([])
+  //Completed
+  const [list2, setList2] = useState([])
+  //Done
+  const [list3, setList3] = useState([])
   const [taskCreateModel, settaskCreateModel] = useState(false)
+
+
+
+useEffect(()=>{
+fetchTask()
+},[])
+
+
+
+async function fetchTask(){
+  try {
+ const res:any= await  axios.get(TASK_URL+`/${auth?.user?._id}`)
+ if(res.data.success){
+  console.log("pending",res?.data?.task?.filter((i:any)=>i?.Status==="Pending"))
+  setList1(res?.data?.task?.filter((i:any)=>i?.Status==="Pending"))
+  setList3(res?.data?.task?.filter((i:any)=>i?.Status==="Completed"))
+  setList2(res?.data?.task?.filter((i:any)=>i?.Status==="Done"))
+ }
+  } catch (error) {
+   console.log(error)
+   toast("Something went worng")
+
+  }
+ }
+
+ async function updateTaskStatus(taskId,status){
+
+  // enum : ['Pending','Completed','Done',"Delete"],
+
+try {
+  let payload={
+    Status:status
+  }
+  const res:any= await  axios.patch(TASK_URL+`/${taskId}`,payload)
+  if(res?.data?.success){
+    fetchTask()
+    toast("Status update successfully")
+  }
+
+} catch (error) {
+  console.log(error)
+}
+
+ }
+
+
+
   const deleteItem = (list: any, index: any) => {
     return list.splice(index, 1)
   }
@@ -41,6 +97,7 @@ export default function TaskList() {
         tempList.splice(destination.index, 0, removed)
         setList2(tempList)
       }
+      fetchTask()
     } else {
       let tempList1 = list1
       let tempList2 = list2
@@ -48,10 +105,14 @@ export default function TaskList() {
 
       if (source.droppableId === "Pending_drop_area") {
         const removed = deleteItem(tempList1, source.index)
+        console.log("removed",removed)
         if (destination.droppableId === "Completed_drop_area") {
+          updateTaskStatus(removed?.[0]._id,"Completed")
           tempList3.splice(destination.index, 0, removed)
         } else {
+          updateTaskStatus(removed?.[0]._id,"Done")
           tempList2.splice(destination.index, 0, removed)
+          
         }
         setList1(tempList1)
         setList2(tempList2)
@@ -59,8 +120,12 @@ export default function TaskList() {
       } else if (source.droppableId === "Completed_drop_area") {
         const removed = deleteItem(tempList3, source.index)
         if (destination.droppableId === "Pending_drop_area") {
+          updateTaskStatus(removed?.[0]._id,"Pending")
+
           tempList1.splice(destination.index, 0, removed)
         } else {
+          updateTaskStatus(removed?.[0]._id,"Done")
+
           tempList2.splice(destination.index, 0, removed)
         }
         setList1(tempList1)
@@ -68,10 +133,13 @@ export default function TaskList() {
         setList3(tempList3)
       } else {
         const removed = deleteItem(tempList2, source.index)
-
         if (destination.droppableId === "Pending_drop_area") {
+          updateTaskStatus(removed?.[0]._id,"Pending")
+
           tempList1.splice(destination.index, 0, removed)
         } else {
+          updateTaskStatus(removed?.[0]._id,"Completed")
+
           tempList3.splice(destination.index, 0, removed)
         }
         setList1(tempList1)
@@ -83,12 +151,23 @@ export default function TaskList() {
   }
 
 
+
+
   async function createTask(){
    try {
-  let payload={title,description}
-  console.log("payload",payload) 
+  let payload={title,description,Status:"Pending",userId:auth?.user?._id}
+  const res:any= await  axios.post(TASK_URL,payload)
+  if(res.data.success){
+    toast("Task Create succesfully")
+    settaskCreateModel(false)
+    fetchTask()
+  }else{
+    toast("Something went worng")
+  }
    } catch (error) {
     console.log(error)
+    toast("Something went worng")
+
    }
   }
 
@@ -96,6 +175,8 @@ export default function TaskList() {
   return (
 
     <div className="flex flex-col w-full" >
+                <ToastContainer />
+
       <div className="text-center mt-5 font-bold text-3xl">
         Task Management
       </div>
@@ -120,12 +201,12 @@ export default function TaskList() {
           children={
             <div className="flex  flex-1 flex-col">
               <h2 className="text-center">Create Task </h2>
-              <input placeholder="Title" className='border-2 rounded-xl flex-1 p-1 h-15 mt-5 text-center'
+              <input placeholder="Title" className='border-2 rounded-xl flex-1 p-1 h-18 mt-5 text-center'
               onChange={(e)=>{
                 settitle(e.target.value)
               }}
               />
-              <input placeholder="Description" className='border-2 rounded-xl flex-1 p-1 h-15 mt-5 text-center' 
+              <input placeholder="Description" className='border-2 rounded-xl flex-1 p-1 h-18 mt-5 text-center' 
                 onChange={(e)=>{
                   setdescription(e.target.value)
                 }}
@@ -144,7 +225,7 @@ export default function TaskList() {
         <DragDropContext onDragEnd={onDragEnd}>
           <div className="">
             <header className="">
-            <div> <TaskComponent pending={list1} done={list2} completed={list3} /></div> 
+           <TaskComponent pending={list1} done={list2} completed={list3} updateTaskStatus={updateTaskStatus}/>
             </header>
           </div>
         </DragDropContext>

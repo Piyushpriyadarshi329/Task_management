@@ -4,13 +4,12 @@ const {getTaskByIdHandler,getTaskHandler,deleteTaskHandler, patchTaskHandler, po
 
 const router= express.Router()
 
-
-
 router.get("/",getTaskHandler)
-router.get("/:id",getTaskByIdHandler)
+router.get("/:userId",getTaskByIdHandler)
 router.patch("/:id",patchTaskHandler)
 router.delete("/:id",deleteTaskHandler)
 router.post("/",postTaskHandler)
+
 
 
 

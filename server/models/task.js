@@ -11,9 +11,13 @@ const taskSchema= new mongoose.Schema({
     description:{
     type:String,
     },
+    userId:{
+        type:String,
+        required:true
+    },
     Status:{
         type:String,
-        enum : ['Pending','Completed','Done'],
+        enum : ['Pending','Completed','Done',"Delete"],
         default: 'Pending'
      
     }

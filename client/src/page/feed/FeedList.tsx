@@ -6,6 +6,8 @@ import FeedComponent from "./FeedComponent";
 export default function FeedList() {
   const [title, settitle] = useState<String | undefined>(undefined)
   const [description, setdescription] = useState<String | undefined>(undefined)
+  const [url, seturl] = useState<String | undefined>(undefined)
+
   const [taskCreateModel, settaskCreateModel] = useState(false)
 
 
@@ -29,10 +31,15 @@ export default function FeedList() {
 
 
 
+
+
   async function createFeed() {
     try {
-      let payload = { title, description }
+    let  urlTemp="https://images.pexels.com/photos/674010/pexels-photo-674010.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2"
+
+      let payload = { title, description, url:urlTemp }
       console.log("payload", payload)
+      
     } catch (error) {
       console.log(error)
     }
